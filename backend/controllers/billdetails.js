@@ -1,8 +1,3 @@
-/*
-Nama: Abdul Richard
-NIM: 10123905
-Kelas: Teknik Informatika 12
-*/
 
 import {
     insertBillDetails,
