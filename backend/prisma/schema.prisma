@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  user_id       Int    @id @default(autoincrement())
+  user_name     String
+  user_email    String @unique
+  user_password String
+
+  carts         Cart[]
+  bills         BillStatus[]
+
+  @@map("user")
+}
+
+model Food {
+  food_id    Int    @id @default(autoincrement())
+  food_name  String
+  food_price Float
+
+  carts      Cart[]
+
+  @@map("food")
+}
+
+
+model Cart {
+  user_id  Int
+  food_id  Int
+  item_qty Int
+
+  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  food Food @relation(fields: [food_id], references: [food_id], onDelete: Cascade)
+
+  @@id([user_id, food_id])
+  @@map("cart")
+}
+
+model BillStatus {
+  bill_id     Int    @id @default(autoincrement())
+  user_id     Int
+  bill_status Int    @default(0)
+  bill_paid   String @default("false")
+
+
+  user        User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  details     BillDetails[]
+
+  @@map("billstatus")
+}
+
+model BillDetails {
+  id      Int @id @default(autoincrement())
+  bill_id Int
+
+  food_id Int?
+  qty     Int?
+
+  bill BillStatus @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade)
+
+  @@map("billdetails")
+}
+
+model BookTable {
+  book_id   Int @id @default(autoincrement())
+  user_id   Int?
+  book_date DateTime?
+  table_no  String?
+
+  @@map("booktable")
+}

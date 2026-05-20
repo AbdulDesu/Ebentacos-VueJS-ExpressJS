@@ -1,17 +1,11 @@
+import prisma from "../config/prisma.js";
+import * as apiHelper from "../helper/APIHelper.js";
 
+export const createBooking = apiHelper.handleErrorAsync(async (req, res, next) => {
+    if (apiHelper.isEmptyObj(req.body)) return apiHelper.APIResponseBR(res, false, "Data booking tidak boleh kosong", null);
 
-import {
-    insertBooking
-} from "../models/BookTableModel.js";
-
-// CREATE Booking
-export const createBooking=(req,res)=>{
-    const data = req.body;
-    insertBooking(data,(err,results)=> {
-        if (err) {
-            res.send(err);
-        }else {
-            res.json(results);
-        }
+    const newBooking = await prisma.bookTable.create({
+        data: req.body
     });
-};
+    return apiHelper.APIResponseOK(res, true, "Berhasil melakukan pemesanan meja", newBooking);
+});
