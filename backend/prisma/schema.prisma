@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -7,10 +8,13 @@ datasource db {
 }
 
 model User {
-  user_id       Int    @id @default(autoincrement())
-  user_name     String
-  user_email    String @unique
-  user_password String
+  user_id       Int     @id @default(autoincrement())
+  user_name     String?
+  user_email    String? @unique
+  user_phone    String?
+  user_password String?
+  user_birth    String?
+  user_gender   String?
 
   carts         Cart[]
   bills         BillStatus[]
@@ -19,20 +23,27 @@ model User {
 }
 
 model Food {
-  food_id    Int    @id @default(autoincrement())
-  food_name  String
-  food_price Float
+  food_id       Int     @id @default(autoincrement())
+  food_name     String?
+  food_star     String?
+  food_vote     String?
+  food_price    Int?
+  food_discount Int?
+  food_desc     String?
+  food_status   String?
+  food_type     String?
+  food_category String?
+  food_src      String?
 
-  carts      Cart[]
+  carts         Cart[]
 
   @@map("food")
 }
 
-
 model Cart {
   user_id  Int
   food_id  Int
-  item_qty Int
+  item_qty Int?
 
   user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   food Food @relation(fields: [food_id], references: [food_id], onDelete: Cascade)
@@ -42,35 +53,44 @@ model Cart {
 }
 
 model BillStatus {
-  bill_id     Int    @id @default(autoincrement())
-  user_id     Int
-  bill_status Int    @default(0)
-  bill_paid   String @default("false")
+  bill_id       Int     @id @default(autoincrement())
+  user_id       Int?
+  bill_phone    String?
+  bill_address  String?
+  bill_when     String?
+  bill_method   String?
+  bill_discount Int?
+  bill_delivery Int?
+  bill_total    Int?
+  bill_paid     String?
+  bill_status   Int?
 
-
-  user        User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  details     BillDetails[]
+  user    User?         @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  details BillDetails[]
 
   @@map("billstatus")
 }
 
 model BillDetails {
-  id      Int @id @default(autoincrement())
-  bill_id Int
-
-  food_id Int?
-  qty     Int?
+  bill_id  Int
+  food_id  Int
+  item_qty Int?
 
   bill BillStatus @relation(fields: [bill_id], references: [bill_id], onDelete: Cascade)
 
+  @@id([bill_id, food_id])
   @@map("billdetails")
 }
 
 model BookTable {
-  book_id   Int @id @default(autoincrement())
-  user_id   Int?
-  book_date DateTime?
-  table_no  String?
+  book_id     Int     @id @default(autoincrement())
+  book_name   String?
+  book_phone  String?
+  book_people Int?
+  book_tables Int?
+  user_id     Int?
+  book_when   String?
+  book_note   String?
 
   @@map("booktable")
 }
