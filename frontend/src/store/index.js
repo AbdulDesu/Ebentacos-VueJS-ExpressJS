@@ -22,13 +22,13 @@ const store = createStore({
     },
     actions: {
         async getFoodsData(context){
-            await axios.get('/foods')
-            .then(function (response) {
-                context.commit("setFoodsData", response.data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+            try {
+                let response = await axios.get('/foods');
+                context.commit("setFoodsData", response.data.data);
+            } catch (error) {
+                console.error("Gagal memuat data makanan:", error);
+                context.commit("setFoodsData", []);
+            }
         },
     }
 })
