@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "deploy": "scp -r dist/* root@canis-major:/var/www/ebentacos.abdulrichard.site/public_html/",
+    "ship": "npm run build && npm run deploy"
   },
   "dependencies": {
     "axios": "^0.27.2",
