@@ -87,64 +87,67 @@
 import OrderDetails from "@/components/OrderDetails.vue";
 import axios from "axios";
 import { mapState } from "vuex";
+
 export default {
-    name: 'MyOrder',
+  name: 'MyOrder',
 
-    data() {
-        return {
-            avaiableStatus: ["cancel", "confirmed", "preparing", "checking", "delivering", "delivered"],
-            allBills: [],
+  data() {
+    return {
+      avaiableStatus: ["cancel", "confirmed", "preparing", "checking", "delivering", "delivered"],
+      allBills: [],
+      showOrderDetails: false,
+      sendId: null,
+      interval: "",
+    }
+  },
 
-            showOrderDetails: false,
-            sendId: null,
+  created() {
+    this.getAllBills();
+  },
 
-            interval: "",
+  mounted: function () {
+    this.autoUpdate();
+  },
+
+  beforeUnmount() {
+    clearInterval(this.interval)
+  },
+
+  computed: {
+    ...mapState(["allFoods", "user"]),
+    filterBills: function () {
+      return this.allBills.filter((b) => b.bill_status < 6 && b.bill_status > 0);
+    },
+  },
+
+  methods: {
+    async getAllBills() {
+      if (this.user) {
+        try {
+          let response = await axios.get('/billstatus/user/' + this.user.user_id);
+          this.allBills = response.data.data;
+        } catch (error) {
+          this.allBills = [];
         }
+      }
     },
 
-    created() {
+    sendBillId: function (id) {
+      this.sendId = id
+      this.showOrderDetails = !this.showOrderDetails;
+    },
+
+    closeView: function () {
+      this.showOrderDetails = !this.showOrderDetails;
+    },
+
+    autoUpdate: function () {
+      this.interval = setInterval(function () {
         this.getAllBills();
-    },
-
-    mounted: function () {
-        this.autoUpdate();
-    },
-
-    beforeUnmount() {
-        clearInterval(this.interval)
-    },
-
-    computed: {
-        ...mapState(["allFoods", "user"]),
-
-        filterBills: function () {
-            return this.allBills.filter((b) => b.bill_status < 6 && b.bill_status > 0);
-        },
-    },
-
-    methods: {
-        async getAllBills() {
-            if (this.user) {
-                this.allBills = (await axios.get('/billstatus/user/' + this.user.user_id)).data;
-            }
-        },
-
-        sendBillId: function (id) {
-            this.sendId = id
-            this.showOrderDetails = !this.showOrderDetails;
-        },
-
-        closeView: function () {
-            this.showOrderDetails = !this.showOrderDetails;
-        },
-
-        autoUpdate: function () {
-            this.interval = setInterval(function () {
-                this.getAllBills();
-            }.bind(this), 1000);
-        }
-    },
-    components: { OrderDetails }
+      }.bind(this), 2000);
+    }
+  },
+  components: { OrderDetails }
 }
 </script>
 

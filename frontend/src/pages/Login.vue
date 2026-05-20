@@ -36,70 +36,67 @@
 <script>
 import axios from "axios";
 import { mapMutations } from "vuex";
-export default {
-    name: 'Login',
 
-    data() {
-        return {
-            loginObj: { email: "", pass: "" },
-            matchUser: undefined,
-            errors: [],
-        }
+export default {
+  name: 'Login',
+
+  data() {
+    return {
+      loginObj: { email: "", pass: "" },
+      matchUser: undefined,
+      errors: [],
+    }
+  },
+
+  methods: {
+    ...mapMutations(["setUser"]),
+
+    scrollToTop() {
+      window.scrollTo(0, 0);
     },
 
-    methods: {
-        ...mapMutations(["setUser"]),
+    async getMatchUser(email) {
+      try {
+        let response = await axios.get('/users/' + email);
+        this.matchUser = response.data.data;
+      } catch (error) {
+        this.matchUser = undefined;
+      }
+    },
 
-        scrollToTop() {
-            window.scrollTo(0, 0);
-        },
+    async handleSubmit(e) {
+      this.errors = [];
 
-        async getMatchUser(email) {
-            let data = await axios.get('/users/' + email);
-            this.matchUser = data.data;
-        },
+      if (!this.loginObj.email) {
+        this.errors.push("Alamat email wajib diisi");
+      } else if (!/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/.test(this.loginObj.email)) {
+        this.errors.push('Format email tidak valid');
+      }
 
-        async handleSubmit(e) {
-            this.errors = [];
+      if (!this.loginObj.pass) {
+        this.errors.push('Password wajib diisi');
+      }
 
-            if (!this.loginObj.email) {
-                this.errors.push("Entering a email is required");
-            }
-            else {
-                if (!/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/.test(this.loginObj.email)) {
-                    this.errors.push('Email must be valid');
-                }
-            }
+      if (this.errors.length !== 0) {
+        e.preventDefault();
+      } else {
+        e.preventDefault();
+        await this.getMatchUser(this.loginObj.email);
 
-
-            if (!this.loginObj.pass) {
-                this.errors.push('Password is required');
-            }
-
-            if (!this.errors.length == 0) {
-                e.preventDefault();
-            }
-            else {
-                e.preventDefault();
-                await this.getMatchUser(this.loginObj.email);
-                if (!this.matchUser) {
-                    this.errors.push("Incorrect email or password!")
-                }
-                else {
-                    if (this.matchUser.user_password === this.loginObj.pass) {
-                        this.matchUser.user_password = "";
-                        this.setUser(this.matchUser);
-                        this.$router.push("/");
-                    }
-                    else {
-                        this.errors.push("Incorrect email or password!")
-                    }
-                }
-            }
+        if (!this.matchUser) {
+          this.errors.push("Email atau password salah!")
+        } else {
+          if (this.matchUser.user_password === this.loginObj.pass) {
+            this.matchUser.user_password = ""; // Hapus password demi keamanan
+            this.setUser(this.matchUser);
+            this.$router.push("/");
+          } else {
+            this.errors.push("Email atau password salah!")
+          }
         }
-
+      }
     }
-
+  }
 }
 </script>
 
